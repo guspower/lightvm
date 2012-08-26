@@ -1,0 +1,19 @@
+CREATING: testnode
+echo -e first=10\nsecond=0\nthird=0\nfourth=2
+addOrUpdate /var/lxc/.test/tmp/.config/passwords testnode PASSWORD 
+/var/lxc/.test/tmp/.gentoo/lxc-gentoo create -q -i 10.0.0.1/8 -g 10.0.0.1 -n testnode -u testnode -a amd64 -p PASSWORD 
+mv /var/lxc/.test/tmp/testnode.conf /var/lxc/.test/tmp/.config/testnode.conf
+chroot /var/lxc/.test/tmp/testnode ln -s /etc/init.d/sshd /etc/runlevels/default/sshd
+addOrUpdate /etc/hosts testnode 10.0.0.1
+mkdir -p /var/lxc/.test/tmp/testnode/root/.ssh
+touch /var/lxc/.test/tmp/testnode/root/.ssh/authorized_keys
+cat /var/lxc/.test/tmp/.config/keys/testkey
+chmod 500 /var/lxc/.test/tmp/testnode/root/.ssh
+chmod 400 /var/lxc/.test/tmp/testnode/root/.ssh/authorized_keys
+lxc-start -d -o /var/lxc/.test/tmp/.logs/testnode.log -l DEBUG -n testnode -f /var/lxc/.test/tmp/.config/testnode.conf
+COMPLETE: testnode(10.0.0.1) in 0s
+	config: /var/lxc/.test/tmp/.config/testnode.conf
+	log   : /var/lxc/.test/tmp/.logs/testnode.log
+	start : lxc-start -n testnode -f /var/lxc/.test/tmp/.config/testnode.conf
+	stop  : lxc-stop -n testnode
+	ssh   : ssh root@testnode

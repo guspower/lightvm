@@ -1,0 +1,52 @@
+#!/bin/bash
+
+fail=
+
+root=$PWD/tmp
+rm -fr $root
+mkdir -p $root
+
+passwordcmd="echo PASSWORD"
+
+export root passwordcmd
+
+. ../.bin/vm.config
+configure starttime
+
+echo -e "first=10\nsecond=0\nthird=0\nfourth=1" > $config/nextip
+mkdir -p $config/keys
+touch $config/keys/testkey
+
+function compare() {
+	local name=$1
+	local scenario=$2
+	local actual="${3:-$root/actual.$name}"
+	local expected="expect.$name/$scenario"
+
+	diff -w $actual $expected
+	if [ $? -eq 0 ];
+	then
+		echo "$name : $scenario : [PASSED]"
+	else
+		echo "$name : $scenario : [FAILED]"
+		fail=true
+	fi
+}
+
+. ../.bin/vm.new testnode --test | sed 's/\\/\\/g' > $root/actual.vm.new
+compare vm.new out 
+
+. ../.bin/vm.delete testnode --test | sed 's/\\/\\/g' > $root/actual.vm.delete
+compare vm.delete out
+
+if [ "$fail" != "" ];
+then
+    exit 1
+fi
+
+
+
+
+
+
+

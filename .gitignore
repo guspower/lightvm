@@ -1,0 +1,5 @@
+*.iml
+.config
+.gentoo
+.idea
+.logs

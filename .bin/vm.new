@@ -1,0 +1,151 @@
+#!/bin/bash
+bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $bindir/vm.config
+
+mode=
+
+if [ "$2" == "--test" ];
+then
+	mode=echo
+	modelog="/dev/stdout"
+fi
+
+hostname=$1
+
+function addOrUpdate() {
+	local filename=$1
+	local host=$2
+	local value=$3
+
+	egrep -q " $host\$" $filename
+	if [ $? -eq 0 ];
+	then
+		$mode sed -i "s/.* $host\$/$value $host/g" $filename
+	else
+		$mode echo "$value $host" >> ${modelog:-$filename}
+	fi
+}
+
+function configureBridge() {
+	local ip=$1
+	local mask=$2
+
+	brctl show | grep -q br0
+	if [ $? -ne 0 ];
+	then
+		$mode brctl addbr br0
+	fi
+
+	ifconfig br0 | grep -q 'UP '
+	if [ $? -ne 0 ];
+	then
+		$mode ifconfig br0 up
+	fi
+
+	ifconfig br0 | grep -q "addr:$ip.*Mask:$mask"
+	if [ $? -ne 0 ];
+	then
+	        $mode ifconfig br0 $ip
+	        $mode ifconfig br0 netmask $mask $ip
+	fi
+}
+
+
+function getNextIpAddress() {
+	. $config/nextip
+
+	local __ipvar=$1
+	local __gwvar=$2
+	local __maskvar=$3
+
+	local localip="${first}.${second}.${third}.${fourth}"
+	local localgw="${first}.0.0.1"
+	local localmask="255.0.0.0"
+
+	local fourth=`expr $fourth + 1`
+	if [ $fourth -ge 255 ];
+	then
+		fourth=1
+		third=`expr $third + 1`
+	fi
+
+	$mode echo -e "first=${first}\nsecond=${second}\nthird=${third}\nfourth=${fourth}" > ${modelog:-$config/nextip}
+
+	eval $__ipvar="'$localip'"
+	eval $__gwvar="'$localgw'"
+	eval $__maskvar="'$localmask'"
+}
+
+function generatePassword() {
+	local host=$1
+	local __pwvar=$2
+
+	local localpw=`$passwordcmd`
+	$mode addOrUpdate $config/passwords $host $localpw
+	
+	eval $__pwvar="'$localpw'"
+}
+
+function enableSSH() {
+	local rootfs=$1
+	$mode chroot $rootfs ln -s /etc/init.d/sshd /etc/runlevels/default/sshd
+}
+
+function addToHosts() {
+	local host=$1
+	local value=$2
+
+	$mode addOrUpdate /etc/hosts $host $value
+}
+
+function addKeys() {
+	local keys=`ls $config/keys`
+	local authdir=$1/root/.ssh
+	local authfile=$authdir/authorized_keys
+	$mode mkdir -p $authdir
+	$mode touch $authfile
+	for key in $keys
+	do
+		$mode cat $config/keys/$key >> ${modelog:-$authfile}
+	done
+	$mode chmod 500 $authdir
+	$mode chmod 400 $authfile
+}
+
+function summary() {
+	local host=$1
+	local ip=$2
+	local start=$3
+	local conf=$4
+	local log=$5
+
+	local elapsed="$(($(date +%s)-start))"
+
+	echo "COMPLETE: $hostname($ip) in ${elapsed}s"
+	echo -e "\tconfig: $conf"
+	echo -e "\tlog   : $log"
+	echo -e "\tstart : lxc-start -n $host -f $conf"
+	echo -e "\tstop  : lxc-stop -n $host"
+	echo -e "\tssh   : ssh root@$hostname"
+}
+
+
+configure timer
+configureHost $hostname
+echo "CREATING: $hostname"
+
+getNextIpAddress ip gw mask
+configureBridge $gw $mask
+generatePassword $hostname password
+
+$mode $createcmd create -q -i "$ip/8" -g $gw -n $hostname -u $hostname -a amd64 -p $password &>> ${modelog:-$hostlog}
+$mode mv $root/${hostname}.conf $hostconf
+
+enableSSH $hostdir
+addToHosts $hostname $ip
+addKeys $hostdir
+
+$mode $startcmd &>> ${modelog:-$hostlog}
+
+summary $hostname $ip $timer $hostconf $hostlog
+

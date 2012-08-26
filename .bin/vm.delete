@@ -1,0 +1,20 @@
+#!/bin/bash
+bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $bindir/vm.config
+
+mode=
+
+if [ "$2" == "--test" ];
+then
+	mode=echo
+	modelog="/dev/stdout"
+fi
+
+hostname=$1
+
+configure timer
+configureHost $hostname
+echo "DELETING: $hostname"
+
+$mode $stopcmd
+$mode rm -fr $hostdir $hostlog $hostconf
