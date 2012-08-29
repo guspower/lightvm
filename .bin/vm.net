@@ -1,30 +1,72 @@
 #!/bin/bash
 
-function configureBridge() {
+function net.configureBridge() {
 	local ip=$1
 	local mask=$2
+    local bridge=${bridge:-"br0"}
+    local brctl=${brctl:-"brctl"}
+    local ifconfig=${ifconfig:-"ifconfig"}
 
-	brctl show | grep -q br0
+	${brctl} show | grep -q $bridge
 	if [ $? -ne 0 ];
 	then
-		$mode brctl addbr br0
+		$mode ${brctl} addbr $bridge
+		$mode ${brctl} setfd $bridge 0
+		$mode ${brctl} sethello $bridge 0
+		$mode ${brctl} stp $bridge off
 	fi
 
-	ifconfig br0 | grep -q 'UP '
+	${ifconfig} $bridge | grep -q 'UP '
 	if [ $? -ne 0 ];
 	then
-		$mode ifconfig br0 up
+		$mode ${ifconfig} $bridge up
 	fi
 
-	ifconfig br0 | grep -q "addr:$ip.*Mask:$mask"
+	${ifconfig} $bridge | grep -q "addr:$ip.*Mask:$mask"
 	if [ $? -ne 0 ];
 	then
-	        $mode ifconfig br0 $ip
-	        $mode ifconfig br0 netmask $mask $ip
+	        $mode ${ifconfig} $bridge $ip
+	        $mode ${ifconfig} $bridge netmask $mask $ip
 	fi
 }
 
-function getNextIpAddress() {
+function net.hostNetworking() {
+	local __hostipvar=$1
+	local __hostifacevar=$2
+
+	local pingcmd=${pingcmd:-"ping"}
+	local hostnamecmd=${hostnamecmd:-"hostname"}
+	local ifconfigcmd=${ifconfigcmd:-"ifconfig"}
+
+    #Why is this so f-ugly and hard?
+    local localhostname=`$hostnamecmd`
+    local localhostip=${hostip:-`$pingcmd -c1 $localhostname | head -n 1 | sed "s/.*(\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)).*/\1/"`}
+    local localhostiface=${hostiface:-`$ifconfigcmd | grep -B1 $localhostip | cut -f1 -d" "`}
+
+    eval $__hostipvar="'$localhostip'"
+	eval $__hostifacevar="'$localhostiface'"
+}
+
+function net.enableIpForwarding() {
+    local ipforward=${ipforward:-"/proc/sys/net/ipv4/ip_forward"}
+
+    local enabled=`cat $ipforward`
+    if [ "$enabled" != "1" ];
+    then
+        $mode echo 1 > ${modelog:-$ipforward}
+    fi
+}
+
+function net.enableNAT() {
+    local hostip=$1
+    local hostiface=$2
+
+    local iptablescmd=${iptablescmd:-"iptables"}
+
+    $mode iptables -t nat -A POSTROUTING -o $hostiface -j SNAT --to-source $hostip
+}
+
+function net.nextIpAddress() {
 	. $config/nextip
 
 	local __ipvar=$1
@@ -49,9 +91,9 @@ function getNextIpAddress() {
 	eval $__maskvar="'$localmask'"
 }
 
-function addToHosts() {
+function net.addToHosts() {
 	local host=$1
 	local value=$2
 
-	$mode addOrUpdate /etc/hosts $host $value
+	$mode util.addOrUpdate /etc/hosts $host $value
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function addOrUpdate() {
+function util.addOrUpdate() {
 	local filename=$1
 	local host=$2
 	local value=$3

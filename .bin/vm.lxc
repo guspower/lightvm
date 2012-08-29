@@ -6,12 +6,34 @@ function lxc.createContainer() {
     local gw=$3
     local pw=$4
 
-    local createcmd=${createcmd:-"$root/.gentoo/lxc-gentoo"}
+    local lxccreate=${lxccreate:-"$root/.gentoo/lxc-gentoo"}
+    if [ "$lxccreate" == "$root/.gentoo/lxc-gentoo" ]
+    then
+        if [ ! -f "$lxccreate" ]
+        then
+            scm.git clone git://github.com/globalcitizen/lxc-gentoo.git "$root/.gentoo"
+        fi
+    fi
 
-    $mode $createcmd create -q -i "$ip/8" -g $gw -n $host -u $host -a amd64 -p $pw &>> ${modelog:-$hostlog}
+
+    $mode $lxccreate create -q -i "$ip/8" -g $gw -n $host -u $host -a amd64 -p $pw &>> ${modelog:-$hostlog}
     $mode mv $root/${host}.conf $hostconf
 }
 
 function lxc.startContainer() {
-    $mode $startcmd &>> ${modelog:-$hostlog}
+    local host=$1
+    local conf=$2
+    local log=$3
+
+	local lxcstart=${lxcstart:-"lxc-start"}
+
+    $mode $lxcstart -d -o $log -l DEBUG -n $host -f $conf &>> ${modelog:-$log}
+}
+
+function lxc.stopContainer() {
+    local host=$1
+
+	local lxcstop=${lxcstop:-"lxc-stop"}
+
+    $mode $lxcstop -n $host
 }

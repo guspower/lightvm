@@ -1,3 +1,3 @@
 DELETING: testnode
 lxc-stop -n testnode
-rm -fr /var/lxc/.test/tmp/testnode /var/lxc/.test/tmp/.logs/testnode.log /var/lxc/.test/tmp/.config/testnode.conf
+rm -fr @@LXCROOT@@/testnode @@LXCROOT@@/.logs/testnode.log @@LXCROOT@@/.config/testnode.conf

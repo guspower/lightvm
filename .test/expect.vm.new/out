@@ -1,19 +1,29 @@
 CREATING: testnode
 echo -e first=10\nsecond=0\nthird=0\nfourth=2
-addOrUpdate /var/lxc/.test/tmp/.config/passwords testnode PASSWORD 
-/var/lxc/.test/tmp/.gentoo/lxc-gentoo create -q -i 10.0.0.1/8 -g 10.0.0.1 -n testnode -u testnode -a amd64 -p PASSWORD 
-mv /var/lxc/.test/tmp/testnode.conf /var/lxc/.test/tmp/.config/testnode.conf
-chroot /var/lxc/.test/tmp/testnode ln -s /etc/init.d/sshd /etc/runlevels/default/sshd
-addOrUpdate /etc/hosts testnode 10.0.0.1
-mkdir -p /var/lxc/.test/tmp/testnode/root/.ssh
-touch /var/lxc/.test/tmp/testnode/root/.ssh/authorized_keys
-cat /var/lxc/.test/tmp/.config/keys/testkey
-chmod 500 /var/lxc/.test/tmp/testnode/root/.ssh
-chmod 400 /var/lxc/.test/tmp/testnode/root/.ssh/authorized_keys
-lxc-start -d -o /var/lxc/.test/tmp/.logs/testnode.log -l DEBUG -n testnode -f /var/lxc/.test/tmp/.config/testnode.conf
+brctl addbr br0
+brctl setfd br0 0
+brctl sethello br0 0
+brctl stp br0 off
+ifconfig br0 up
+ifconfig br0 10.0.0.1
+ifconfig br0 netmask 255.0.0.0 10.0.0.1
+echo 1
+iptables -t nat -A POSTROUTING -o eth5 -j SNAT --to-source 192.168.1.10
+util.addOrUpdate @@LXCROOT@@/.config/passwords testnode PASSWORD
+git clone git://github.com/globalcitizen/lxc-gentoo.git @@LXCROOT@@/.gentoo
+@@LXCROOT@@/.gentoo/lxc-gentoo create -q -i 10.0.0.1/8 -g 10.0.0.1 -n testnode -u testnode -a amd64 -p PASSWORD 
+mv @@LXCROOT@@/testnode.conf @@LXCROOT@@/.config/testnode.conf
+chroot @@LXCROOT@@/testnode ln -s /etc/init.d/sshd /etc/runlevels/default/sshd
+util.addOrUpdate /etc/hosts testnode 10.0.0.1
+mkdir -p @@LXCROOT@@/testnode/root/.ssh
+touch @@LXCROOT@@/testnode/root/.ssh/authorized_keys
+cat @@LXCROOT@@/.config/keys/testkey
+chmod 500 @@LXCROOT@@/testnode/root/.ssh
+chmod 400 @@LXCROOT@@/testnode/root/.ssh/authorized_keys
+lxc-start -d -o @@LXCROOT@@/.logs/testnode.log -l DEBUG -n testnode -f @@LXCROOT@@/.config/testnode.conf
 COMPLETE: testnode(10.0.0.1) in 0s
-	config: /var/lxc/.test/tmp/.config/testnode.conf
-	log   : /var/lxc/.test/tmp/.logs/testnode.log
-	start : lxc-start -n testnode -f /var/lxc/.test/tmp/.config/testnode.conf
+	config: @@LXCROOT@@/.config/testnode.conf
+	log   : @@LXCROOT@@/.logs/testnode.log
+	start : lxc-start -n testnode -f @@LXCROOT@@/.config/testnode.conf
 	stop  : lxc-stop -n testnode
 	ssh   : ssh root@testnode

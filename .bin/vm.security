@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function addKeys() {
+function security.addSSHKeys() {
 	local keys=`ls $config/keys`
 	local authdir=$1/root/.ssh
 	local authfile=$authdir/authorized_keys
@@ -14,12 +14,12 @@ function addKeys() {
 	$mode chmod 400 $authfile
 }
 
-function generatePassword() {
+function security.generatePassword() {
 	local host=$1
 	local __pwvar=$2
 
 	local localpw=`$passwordcmd`
-	$mode addOrUpdate $config/passwords $host $localpw
+	$mode util.addOrUpdate $config/passwords $host $localpw
 
 	eval $__pwvar="'$localpw'"
 }

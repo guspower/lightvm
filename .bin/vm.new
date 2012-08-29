@@ -2,28 +2,15 @@
 
 bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $bindir/vm.config
-. $bindir/vm.util
-. $bindir/vm.net
-. $bindir/vm.security
-. $bindir/vm.services
-. $bindir/vm.lxc
-
-mode=
-
-if [ "$2" == "--test" ];
-then
-	mode=echo
-	modelog="/dev/stdout"
-fi
+config.include lxc net scm security services util
 
 hostname=$1
 
-function summary() {
+function __summary() {
 	local host=$1
 	local ip=$2
-	local start=$3
-	local conf=$4
-	local log=$5
+	local conf=$3
+	local log=$4
 
 	local elapsed="$(($(date +%s)-start))"
 
@@ -35,26 +22,24 @@ function summary() {
 	echo -e "\tssh   : ssh root@$hostname"
 }
 
-configure timer
-configureHost $hostname
+config.init
+config.initHost $hostname
 echo "CREATING: $hostname"
 
-getNextIpAddress ip gw mask
-configureBridge $gw $mask
-generatePassword $hostname password
+net.nextIpAddress ip gw mask
+net.configureBridge $gw $mask
+net.enableIpForwarding
+net.hostNetworking hostip hostiface
+net.enableNAT $hostip $hostiface
+
+security.generatePassword $hostname password
 
 lxc.createContainer $hostname $ip $gw $password
-enableService sshd $hostdir
-addToHosts $hostname $ip
-addKeys $hostdir
+service.enable sshd $hostdir
+net.addToHosts $hostname $ip
+security.addSSHKeys $hostdir
 
-lxc.startContainer
+lxc.startContainer $hostname $hostconf $hostlog
 
-#declare -A phones
-#phones[one]="Apple"
-#phones[two]="Nokia"
-#phones[three]="Samsung"
-#for p in "${!phones[@]}"; do echo "Sales $p position set to ${phones[$p]}"; done
-
-summary $hostname $ip $timer $hostconf $hostlog
+__summary $hostname $ip $hostconf $hostlog
 

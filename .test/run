@@ -7,11 +7,12 @@ rm -fr $root
 mkdir -p $root
 
 passwordcmd="echo PASSWORD"
+hostip="192.168.1.10"
+hostiface="eth5"
 
-export root passwordcmd
-
+export root passwordcmd hostip hostiface
 . ../.bin/vm.config
-configure starttime
+config.init
 
 echo -e "first=10\nsecond=0\nthird=0\nfourth=1" > $config/nextip
 mkdir -p $config/keys
@@ -21,7 +22,13 @@ function compare() {
 	local name=$1
 	local scenario=$2
 	local actual="${3:-$root/actual.$name}"
-	local expected="expect.$name/$scenario"
+	local source="expect.$name/$scenario"
+	local expected="${4:-$root/expect.$name}"
+
+	if [ ! -f $expected ];
+	then
+	    cat $source | sed "s,@@LXCROOT@@,${root},g" > $expected
+	fi
 
 	diff -w $actual $expected
 	if [ $? -eq 0 ];

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function enableService() {
+function service.enable() {
     local service=$1
 	local rootfs=$2
 	$mode chroot $rootfs ln -s /etc/init.d/$service /etc/runlevels/default/$service

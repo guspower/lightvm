@@ -1,22 +1,22 @@
-Host names
+# Host names
 * remove from host hosts file on delete
 * add to vms hosts files on add
 * remove from vms hosts files on delete
 
-Environment
+# Environment
 * handle duplicate names
 * lxc-gentoo auto git checkout
-* prerequsites (lxc-checkconfig etc.)
+* prerequsites (lxc-checkconfig, ifconfig, brctl etc.)
+  * should each module do this?
 
-Ephemeral
+# Ephemeral
 * aufs3: cow ephemeral  
 
-Stop Start
+# Stop Start
 * investigate freeze
 
-Code
+# Code
 * scope function names
-* create host and net associative arrays
 
-Installation
+# Installation
 * separate installation from /var/lxc/.*, use environment var or path
