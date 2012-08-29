@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function lxc.createContainer() {
+    local host=$1
+    local ip=$2
+    local gw=$3
+    local pw=$4
+
+    local createcmd=${createcmd:-"$root/.gentoo/lxc-gentoo"}
+
+    $mode $createcmd create -q -i "$ip/8" -g $gw -n $host -u $host -a amd64 -p $pw &>> ${modelog:-$hostlog}
+    $mode mv $root/${host}.conf $hostconf
+}
+
+function lxc.startContainer() {
+    $mode $startcmd &>> ${modelog:-$hostlog}
+}

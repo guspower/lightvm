@@ -1,0 +1,15 @@
+#!/bin/bash
+
+function addOrUpdate() {
+	local filename=$1
+	local host=$2
+	local value=$3
+
+	egrep -q " $host\$" $filename
+	if [ $? -eq 0 ];
+	then
+		$mode sed -i "s/.* $host\$/$value $host/g" $filename
+	else
+		$mode echo "$value $host" >> ${modelog:-$filename}
+	fi
+}

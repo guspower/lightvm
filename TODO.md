@@ -13,3 +13,10 @@ Ephemeral
 
 Stop Start
 * investigate freeze
+
+Code
+* scope function names
+* create host and net associative arrays
+
+Installation
+* separate installation from /var/lxc/.*, use environment var or path

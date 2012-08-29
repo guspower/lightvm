@@ -1,0 +1,25 @@
+#!/bin/bash
+
+function addKeys() {
+	local keys=`ls $config/keys`
+	local authdir=$1/root/.ssh
+	local authfile=$authdir/authorized_keys
+	$mode mkdir -p $authdir
+	$mode touch $authfile
+	for key in $keys
+	do
+		$mode cat $config/keys/$key >> ${modelog:-$authfile}
+	done
+	$mode chmod 500 $authdir
+	$mode chmod 400 $authfile
+}
+
+function generatePassword() {
+	local host=$1
+	local __pwvar=$2
+
+	local localpw=`$passwordcmd`
+	$mode addOrUpdate $config/passwords $host $localpw
+
+	eval $__pwvar="'$localpw'"
+}

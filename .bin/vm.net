@@ -1,0 +1,57 @@
+#!/bin/bash
+
+function configureBridge() {
+	local ip=$1
+	local mask=$2
+
+	brctl show | grep -q br0
+	if [ $? -ne 0 ];
+	then
+		$mode brctl addbr br0
+	fi
+
+	ifconfig br0 | grep -q 'UP '
+	if [ $? -ne 0 ];
+	then
+		$mode ifconfig br0 up
+	fi
+
+	ifconfig br0 | grep -q "addr:$ip.*Mask:$mask"
+	if [ $? -ne 0 ];
+	then
+	        $mode ifconfig br0 $ip
+	        $mode ifconfig br0 netmask $mask $ip
+	fi
+}
+
+function getNextIpAddress() {
+	. $config/nextip
+
+	local __ipvar=$1
+	local __gwvar=$2
+	local __maskvar=$3
+
+	local localip="${first}.${second}.${third}.${fourth}"
+	local localgw="${first}.0.0.1"
+	local localmask="255.0.0.0"
+
+	local fourth=`expr $fourth + 1`
+	if [ $fourth -ge 255 ];
+	then
+		fourth=1
+		third=`expr $third + 1`
+	fi
+
+	$mode echo -e "first=${first}\nsecond=${second}\nthird=${third}\nfourth=${fourth}" > ${modelog:-$config/nextip}
+
+	eval $__ipvar="'$localip'"
+	eval $__gwvar="'$localgw'"
+	eval $__maskvar="'$localmask'"
+}
+
+function addToHosts() {
+	local host=$1
+	local value=$2
+
+	$mode addOrUpdate /etc/hosts $host $value
+}
