@@ -11,7 +11,7 @@ hostip="192.168.1.10"
 hostiface="eth5"
 
 export root passwordcmd hostip hostiface
-. ../.bin/vm.config
+. ../bin/vm.config
 config.init
 
 mkdir -p $confdir/keys
@@ -39,10 +39,10 @@ function compare() {
 	fi
 }
 
-. ../.bin/vm.new testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.new
+. ../bin/vm.new testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.new
 compare vm.new out 
 
-. ../.bin/vm.delete testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.delete
+. ../bin/vm.delete testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.delete
 compare vm.delete out
 
 if [ "$fail" != "" ];

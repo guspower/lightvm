@@ -13,9 +13,6 @@
 * split vm base directory from config/logging/bin dirs
 * configure gentoo cache directory?
 
-# Net
-* initialize .config/nextip
-
 # Ephemeral
 * aufs3: cow ephemeral  
 
