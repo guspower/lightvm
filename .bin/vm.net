@@ -67,7 +67,12 @@ function net.enableNAT() {
 }
 
 function net.nextIpAddress() {
-	. $config/nextip
+    if [ ! -f $confdir/nextip ];
+    then
+        echo -e "first=10\nsecond=0\nthird=0\nfourth=2" > $confdir/nextip
+    fi
+
+	. $confdir/nextip
 
 	local __ipvar=$1
 	local __gwvar=$2
@@ -84,7 +89,7 @@ function net.nextIpAddress() {
 		third=`expr $third + 1`
 	fi
 
-	$mode echo -e "first=${first}\nsecond=${second}\nthird=${third}\nfourth=${fourth}" > ${modelog:-$config/nextip}
+	$mode echo -e "first=${first}\nsecond=${second}\nthird=${third}\nfourth=${fourth}" > ${modelog:-$confdir/nextip}
 
 	eval $__ipvar="'$localip'"
 	eval $__gwvar="'$localgw'"
@@ -96,4 +101,10 @@ function net.addToHosts() {
 	local value=$2
 
 	$mode util.addOrUpdate /etc/hosts $host $value
+}
+
+function net.containerSummary() {
+    local host=$1
+
+    echo -e "\tssh   : ssh root@$host"
 }

@@ -1,14 +1,14 @@
 #!/bin/bash
 
 function security.addSSHKeys() {
-	local keys=`ls $config/keys`
+	local keys=`ls $confdir/keys`
 	local authdir=$1/root/.ssh
 	local authfile=$authdir/authorized_keys
 	$mode mkdir -p $authdir
 	$mode touch $authfile
 	for key in $keys
 	do
-		$mode cat $config/keys/$key >> ${modelog:-$authfile}
+		$mode cat $confdir/keys/$key >> ${modelog:-$authfile}
 	done
 	$mode chmod 500 $authdir
 	$mode chmod 400 $authfile
@@ -19,7 +19,7 @@ function security.generatePassword() {
 	local __pwvar=$2
 
 	local localpw=`$passwordcmd`
-	$mode util.addOrUpdate $config/passwords $host $localpw
+	$mode util.addOrUpdate $confdir/passwords $host $localpw
 
 	eval $__pwvar="'$localpw'"
 }

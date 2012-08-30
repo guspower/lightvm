@@ -6,6 +6,12 @@ config.include lxc net scm security services util
 
 hostname=$1
 
+function __intro() {
+    local host=$1
+
+    echo "CREATING: $host"
+}
+
 function __summary() {
 	local host=$1
 	local ip=$2
@@ -15,16 +21,13 @@ function __summary() {
 	local elapsed="$(($(date +%s)-start))"
 
 	echo "COMPLETE: $hostname($ip) in ${elapsed}s"
-	echo -e "\tconfig: $conf"
-	echo -e "\tlog   : $log"
-	echo -e "\tstart : lxc-start -n $host -f $conf"
-	echo -e "\tstop  : lxc-stop -n $host"
-	echo -e "\tssh   : ssh root@$hostname"
+	lxc.containerSummary $host $conf $log
+	net.containerSummary $host
 }
 
 config.init
 config.initHost $hostname
-echo "CREATING: $hostname"
+__intro $hostname
 
 net.nextIpAddress ip gw mask
 net.configureBridge $gw $mask

@@ -6,18 +6,18 @@ function lxc.createContainer() {
     local gw=$3
     local pw=$4
 
-    local lxccreate=${lxccreate:-"$root/.gentoo/lxc-gentoo"}
-    if [ "$lxccreate" == "$root/.gentoo/lxc-gentoo" ]
+    local lxccreate=${lxccreate:-"$vmdir/.gentoo/lxc-gentoo"}
+    if [ "$lxccreate" == "$vmdir/.gentoo/lxc-gentoo" ]
     then
         if [ ! -f "$lxccreate" ]
         then
-            scm.git clone git://github.com/globalcitizen/lxc-gentoo.git "$root/.gentoo"
+            scm.git clone git://github.com/globalcitizen/lxc-gentoo.git "$vmdir/.gentoo"
         fi
     fi
 
 
     $mode $lxccreate create -q -i "$ip/8" -g $gw -n $host -u $host -a amd64 -p $pw &>> ${modelog:-$hostlog}
-    $mode mv $root/${host}.conf $hostconf
+    $mode mv $vmdir/${host}.conf $hostconf
 }
 
 function lxc.startContainer() {
@@ -25,15 +25,44 @@ function lxc.startContainer() {
     local conf=$2
     local log=$3
 
-	local lxcstart=${lxcstart:-"lxc-start"}
+    local lxcstartcmd=$(__getLxcStartCommandLine $host $conf $log)
 
-    $mode $lxcstart -d -o $log -l DEBUG -n $host -f $conf &>> ${modelog:-$log}
+    $mode $lxcstartcmd &>> ${modelog:-$log}
 }
 
 function lxc.stopContainer() {
     local host=$1
 
+	local lxcstopcmd=$(__getLxcStopCommandLine $host)
+
+    $mode $lxcstopcmd
+}
+
+function lxc.containerSummary() {
+    local host=$1
+    local conf=$2
+    local log=$3
+
+    echo -e "\tconfig: $conf"
+	echo -e "\tlog   : $log"
+	echo -e "\tstart : $(__getLxcStartCommandLine $host $conf $log)"
+	echo -e "\tstop  : $(__getLxcStopCommandLine $host)"
+}
+
+function __getLxcStartCommandLine() {
+    local host=$1
+    local conf=$2
+    local log=$3
+
+	local lxcstart=${lxcstart:-"lxc-start"}
+
+	echo "$lxcstart -d -o $log -l DEBUG -n $host -f $conf"
+}
+
+function __getLxcStopCommandLine() {
+    local host=$1
+
 	local lxcstop=${lxcstop:-"lxc-stop"}
 
-    $mode $lxcstop -n $host
+	echo "$lxcstop -n $host"
 }

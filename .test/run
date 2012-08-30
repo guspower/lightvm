@@ -2,9 +2,9 @@
 
 fail=
 
-root=$PWD/tmp
-rm -fr $root
-mkdir -p $root
+vmdir=$PWD/tmp
+rm -fr $vmdir
+mkdir -p $vmdir
 
 passwordcmd="echo PASSWORD"
 hostip="192.168.1.10"
@@ -14,20 +14,19 @@ export root passwordcmd hostip hostiface
 . ../.bin/vm.config
 config.init
 
-echo -e "first=10\nsecond=0\nthird=0\nfourth=1" > $config/nextip
-mkdir -p $config/keys
-touch $config/keys/testkey
+mkdir -p $confdir/keys
+touch $confdir/keys/testkey
 
 function compare() {
 	local name=$1
 	local scenario=$2
-	local actual="${3:-$root/actual.$name}"
+	local actual="${3:-$vmdir/actual.$name}"
 	local source="expect.$name/$scenario"
-	local expected="${4:-$root/expect.$name}"
+	local expected="${4:-$vmdir/expect.$name}"
 
 	if [ ! -f $expected ];
 	then
-	    cat $source | sed "s,@@LXCROOT@@,${root},g" > $expected
+	    cat $source | sed "s,@@LXCROOT@@,${vmdir},g" > $expected
 	fi
 
 	diff -w $actual $expected
@@ -40,10 +39,10 @@ function compare() {
 	fi
 }
 
-. ../.bin/vm.new testnode --test | sed 's/\\/\\/g' > $root/actual.vm.new
+. ../.bin/vm.new testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.new
 compare vm.new out 
 
-. ../.bin/vm.delete testnode --test | sed 's/\\/\\/g' > $root/actual.vm.delete
+. ../.bin/vm.delete testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.delete
 compare vm.delete out
 
 if [ "$fail" != "" ];

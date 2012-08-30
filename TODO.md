@@ -24,3 +24,7 @@
 
 # Installation
 * separate installation from /var/lxc/.*, use environment var or path
+* ebuild distribution
+
+# Security
+* encrypt generated password
