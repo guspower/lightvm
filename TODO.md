@@ -5,18 +5,22 @@
 
 # Environment
 * handle duplicate names
-* lxc-gentoo auto git checkout
 * prerequsites (lxc-checkconfig, ifconfig, brctl etc.)
   * should each module do this?
+
+# Configuration
+* external config / load from env?
+* split vm base directory from config/logging/bin dirs
+* configure gentoo cache directory?
+
+# Net
+* initialize .config/nextip
 
 # Ephemeral
 * aufs3: cow ephemeral  
 
 # Stop Start
 * investigate freeze
-
-# Code
-* scope function names
 
 # Installation
 * separate installation from /var/lxc/.*, use environment var or path

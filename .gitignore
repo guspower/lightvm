@@ -3,3 +3,4 @@
 .gentoo
 .idea
 .logs
+.test/tmp

@@ -7,3 +7,9 @@
 # Net
 * enable ipv4 forwarding
 * setup container outbound NAT
+
+#Environment
+* lxc-gentoo auto git checkout
+
+# Code
+* scope function names
