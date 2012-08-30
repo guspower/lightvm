@@ -5,6 +5,11 @@ function util.addOrUpdate() {
 	local host=$2
 	local value=$3
 
+    if [ ! -f $filename ];
+    then
+        touch $filename
+    fi
+
 	egrep -q " $host\$" $filename
 	if [ $? -eq 0 ];
 	then

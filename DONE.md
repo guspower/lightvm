@@ -15,3 +15,5 @@
 # Code
 * scope function names
 
+# Configuration
+* split vm base directory from config/logging/bin dirs

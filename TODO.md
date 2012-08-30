@@ -10,7 +10,6 @@
 
 # Configuration
 * external config / load from env?
-* split vm base directory from config/logging/bin dirs
 * configure gentoo cache directory?
 
 # Ephemeral
@@ -25,3 +24,5 @@
 
 # Security
 * encrypt generated password
+
+
