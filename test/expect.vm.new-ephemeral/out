@@ -1,0 +1,34 @@
+CREATING: webnode
+echo -e first=10\nsecond=0\nthird=0\nfourth=3
+brctl addbr br0
+brctl setfd br0 0
+brctl sethello br0 0
+brctl stp br0 off
+ifconfig br0 up
+ifconfig br0 10.0.0.1
+ifconfig br0 netmask 255.0.0.0 10.0.0.1
+echo 1
+iptables -t nat -A POSTROUTING -o eth5 -j SNAT --to-source 192.168.1.10
+util.addOrUpdate @@LXCROOT@@/.config/passwords webnode PASSWORD
+git clone git://github.com/globalcitizen/lxc-gentoo.git @@LXCROOT@@/.gentoo
+mkdir -p @@LXCROOT@@/webnode
+mkdir -p @@LXCROOT@@/.webnode
+mount -t aufs -o br=@@LXCROOT@@/.webnode=rw:@@LXCROOT@@/webserver=ro none webnode
+cp @@LXCROOT@@/.config/webserver.conf @@LXCROOT@@/.config/webnode.conf
+sed -i s/webnode/webserver/g @@LXCROOT@@/.config/webnode.conf
+sed -i s,[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\/[0-9],10.0.0.2/8,g @@LXCROOT@@/webnode/etc/conf.d/net
+echo hostname=webnode
+chroot @@LXCROOT@@/webnode ln -s /etc/init.d/sshd /etc/runlevels/default/sshd
+util.addOrUpdate /etc/hosts webnode 10.0.0.2
+mkdir -p @@LXCROOT@@/webnode/root/.ssh
+touch @@LXCROOT@@/webnode/root/.ssh/authorized_keys
+cat @@LXCROOT@@/.config/keys/testkey
+chmod 500 @@LXCROOT@@/webnode/root/.ssh
+chmod 400 @@LXCROOT@@/webnode/root/.ssh/authorized_keys
+lxc-start -d -o @@LXCROOT@@/.logs/webnode.log -l DEBUG -n webnode -f @@LXCROOT@@/.config/webnode.conf
+COMPLETE: webnode(10.0.0.2) in 0s
+	config: @@LXCROOT@@/.config/webnode.conf
+	log   : @@LXCROOT@@/.logs/webnode.log
+	start : lxc-start -d -o @@LXCROOT@@/.logs/webnode.log -l DEBUG -n webnode -f @@LXCROOT@@/.config/webnode.conf
+	stop  : lxc-stop -n webnode
+	ssh   : ssh root@webnode

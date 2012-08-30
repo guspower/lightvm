@@ -17,3 +17,7 @@
 
 # Configuration
 * split vm base directory from config/logging/bin dirs
+* configure gentoo cache directory? [FAIL: can't set this without modifying the script]
+
+# Ephemeral
+* aufs3: cow ephemeral

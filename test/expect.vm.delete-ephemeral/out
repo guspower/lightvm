@@ -1,0 +1,6 @@
+DELETING: enode
+lxc-stop -n enode
+umount @@LXCROOT@@/enode
+rm -fr @@LXCROOT@@/.enode
+rm -fr @@LXCROOT@@/enode @@LXCROOT@@/.logs/enode.log @@LXCROOT@@/.config/enode.conf
+DELETED: enode in 0s

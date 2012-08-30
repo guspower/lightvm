@@ -25,6 +25,13 @@ config.initHost $hostname
 __intro $hostname
 
 lxc.stopContainer $hostname
+mountcmd=${mountcmd:-"mount"}
+$mountcmd | grep -q $hostdir
+if [ $? -eq 0 ];
+then
+    $mode umount $hostdir
+    $mode rm -fr $vmdir/.$hostname
+fi
 $mode rm -fr $hostdir $hostlog $hostconf
 
 __summary $hostname

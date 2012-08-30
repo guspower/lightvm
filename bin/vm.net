@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ipv4pattern="[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"
+
 function net.configureBridge() {
 	local ip=$1
 	local mask=$2
@@ -40,11 +42,21 @@ function net.hostNetworking() {
 
     #Why is this so f-ugly and hard?
     local localhostname=`$hostnamecmd`
-    local localhostip=${hostip:-`$pingcmd -c1 $localhostname | head -n 1 | sed "s/.*(\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)).*/\1/"`}
+    local localhostip=${hostip:-`$pingcmd -c1 $localhostname | head -n 1 | sed "s/.*(\(${ipv4pattern}\)).*/\1/"`}
     local localhostiface=${hostiface:-`$ifconfigcmd | grep -B1 $localhostip | cut -f1 -d" "`}
 
     eval $__hostipvar="'$localhostip'"
 	eval $__hostifacevar="'$localhostiface'"
+}
+
+function net.updateContainerConfig() {
+    local containername=$1
+    local containerdir=$2
+    local containerip=$3
+    local containermasknum=$4
+
+    $mode sed -i "s,${ipv4pattern}\/[0-9],$containerip/$containermasknum,g" "$containerdir/etc/conf.d/net"
+    $mode echo "hostname=$containername" > ${modelog:-$containerdir/etc/conf.d/hostname}
 }
 
 function net.enableIpForwarding() {
@@ -77,10 +89,12 @@ function net.nextIpAddress() {
 	local __ipvar=$1
 	local __gwvar=$2
 	local __maskvar=$3
+	local __masknumvar=$4
 
 	local localip="${first}.${second}.${third}.${fourth}"
 	local localgw="${first}.0.0.1"
 	local localmask="255.0.0.0"
+	local localmasknum="8"
 
 	local fourth=`expr $fourth + 1`
 	if [ $fourth -ge 255 ];
@@ -94,6 +108,7 @@ function net.nextIpAddress() {
 	eval $__ipvar="'$localip'"
 	eval $__gwvar="'$localgw'"
 	eval $__maskvar="'$localmask'"
+	eval $__masknumvar="'$localmasknum'"
 }
 
 function net.addToHosts() {

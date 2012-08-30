@@ -4,20 +4,36 @@ function lxc.createContainer() {
     local host=$1
     local ip=$2
     local gw=$3
-    local pw=$4
+    local masknum=$4
+    local pw=$5
+    local profile=$6
 
-    local lxccreate=${lxccreate:-"$vmdir/.gentoo/lxc-gentoo"}
-    if [ "$lxccreate" == "$vmdir/.gentoo/lxc-gentoo" ]
+    __getLxcCreateCommand
+
+    if [ "$profile" != "" ];
     then
-        if [ ! -f "$lxccreate" ]
+        local profiledir=$profile
+        if [ ! -d "$profiledir" ];
         then
-            scm.git clone git://github.com/globalcitizen/lxc-gentoo.git "$vmdir/.gentoo"
+            profiledir="$vmdir/$profile"
         fi
     fi
 
+    if [ -d "$profiledir" ];
+    then
+        local uniondir="$vmdir/.$host"
+        $mode mkdir -p $hostdir
+        $mode mkdir -p $uniondir
+        $mode mount -t aufs -o br=$uniondir=rw:$profiledir=ro none $host
 
-    $mode $lxccreate create -q -i "$ip/8" -g $gw -n $host -u $host -a amd64 -p $pw &>> ${modelog:-$hostlog}
-    $mode mv $vmdir/${host}.conf $hostconf
+        $mode cp "$confdir/$profile.conf" $hostconf
+        $mode sed -i "s/$host/$profile/g" $hostconf
+
+        net.updateContainerConfig $host $hostdir $ip $masknum
+    else
+        $mode $lxccreate create -q -i "$ip/$masknum" -g $gw -n $host -u $host -a amd64 -p $pw &>> ${modelog:-$hostlog}
+        $mode mv $vmdir/${host}.conf $hostconf
+    fi
 }
 
 function lxc.startContainer() {
@@ -65,4 +81,15 @@ function __getLxcStopCommandLine() {
 	local lxcstop=${lxcstop:-"lxc-stop"}
 
 	echo "$lxcstop -n $host"
+}
+
+function __getLxcCreateCommand() {
+    lxccreate=${lxccreate:-"$vmdir/.gentoo/lxc-gentoo"}
+    if [ "$lxccreate" == "$vmdir/.gentoo/lxc-gentoo" ]
+    then
+        if [ ! -f "$lxccreate" ]
+        then
+            scm.git clone git://github.com/globalcitizen/lxc-gentoo.git "$vmdir/.gentoo"
+        fi
+    fi
 }

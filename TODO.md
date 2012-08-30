@@ -10,10 +10,6 @@
 
 # Configuration
 * external config / load from env?
-* configure gentoo cache directory?
-
-# Ephemeral
-* aufs3: cow ephemeral  
 
 # Stop Start
 * investigate freeze
@@ -23,6 +19,6 @@
 * ebuild distribution
 
 # Security
-* encrypt generated password
+* encrypt generated password e.g. echo $password | gpg -r username -e > $hostname.pwd
 
 

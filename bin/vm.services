@@ -3,5 +3,8 @@
 function service.enable() {
     local service=$1
 	local rootfs=$2
-	$mode chroot $rootfs ln -s /etc/init.d/$service /etc/runlevels/default/$service
+	if [ ! -f "$rootfs/etc/init.d/$service" ];
+	then
+	    $mode chroot $rootfs ln -s /etc/init.d/$service /etc/runlevels/default/$service
+	fi
 }

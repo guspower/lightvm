@@ -34,16 +34,24 @@ function compare() {
 	then
 		echo "$name : $scenario : [PASSED]"
 	else
-		echo "$name : $scenario : [FAILED]"
+		echo -e "$name : $scenario : [FAILED]\n\n"
 		fail=true
 	fi
 }
 
 . ../bin/vm.new testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.new
-compare vm.new out 
+compare vm.new out
+
+mkdir $vmdir/webserver
+. ../bin/vm.new webnode webserver --test | sed 's/\\/\\/g' > $vmdir/actual.vm.new-ephemeral
+compare vm.new-ephemeral out
 
 . ../bin/vm.delete testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.delete
 compare vm.delete out
+
+mountcmd="echo $vmdir/enode"
+. ../bin/vm.delete enode webserver --test | sed 's/\\/\\/g' > $vmdir/actual.vm.delete-ephemeral
+compare vm.delete-ephemeral out
 
 if [ "$fail" != "" ];
 then
