@@ -3,4 +3,5 @@ DELETING: enode
 lxc-stop -n enode
 . @@LXCROOT@@/.config/enode.stop.post
 rm -fr @@LXCROOT@@/.enode @@LXCROOT@@/enode @@LXCROOT@@/.logs/enode.log @@LXCROOT@@/.config/enode.conf
+rm -fr @@LXCROOT@@/.config/enode.start.pre @@LXCROOT@@/.config/enode.start.post @@LXCROOT@@/.config/enode.stop.pre @@LXCROOT@@/.config/enode.stop.post
 DELETED: enode in 0s

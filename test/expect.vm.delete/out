@@ -3,4 +3,5 @@ DELETING: testnode
 lxc-stop -n testnode
 . @@LXCROOT@@/.config/testnode.stop.post
 rm -fr @@LXCROOT@@/.testnode @@LXCROOT@@/testnode @@LXCROOT@@/.logs/testnode.log @@LXCROOT@@/.config/testnode.conf
+rm -fr @@LXCROOT@@/.config/testnode.start.pre @@LXCROOT@@/.config/testnode.start.post @@LXCROOT@@/.config/testnode.stop.pre @@LXCROOT@@/.config/testnode.stop.post
 DELETED: testnode in 0s

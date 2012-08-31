@@ -44,35 +44,35 @@ function lxc.startContainer() {
     local conf=$2
     local log=$3
 
-    if [ -f $hostprestart ];
+    if [ -f $hoststartpre ];
     then
-        $mode . $hostprestart &>> ${modelog:-$hostlog}
+        $mode . $hoststartpre &>> ${modelog:-$hostlog}
     fi
 
     local lxcstartcmd=$(__getLxcStartCommandLine $host $conf $log)
 
     $mode $lxcstartcmd &>> ${modelog:-$log}
 
-    if [ -f $hostpoststart ];
+    if [ -f $hoststartpost ];
     then
-        $mode . $hostpoststart &>> ${modelog:-$hostlog}
+        $mode . $hoststartpost &>> ${modelog:-$hostlog}
     fi
 }
 
 function lxc.stopContainer() {
     local host=$1
 
-    if [ -f $hostprestop ];
+    if [ -f $hoststoppre ];
     then
-        $mode . $hostprestop &>> ${modelog:-$hostlog}
+        $mode . $hoststoppre &>> ${modelog:-$hostlog}
     fi
 
 	local lxcstopcmd=$(__getLxcStopCommandLine $host)
     $mode $lxcstopcmd
 
-    if [ -f $hostpoststop ];
+    if [ -f $hoststoppost ];
     then
-        $mode . $hostpoststop &>> ${modelog:-$hostlog}
+        $mode . $hoststoppost &>> ${modelog:-$hostlog}
     fi
 }
 

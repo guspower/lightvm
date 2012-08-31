@@ -26,5 +26,6 @@ __intro $hostname
 
 lxc.stopContainer $hostname
 $mode rm -fr $vmdir/.$hostname $hostdir $hostlog $hostconf
+$mode rm -fr $hoststartpre $hoststartpost $hoststoppre $hoststoppost
 
 __summary $hostname
