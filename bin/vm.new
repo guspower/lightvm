@@ -5,7 +5,11 @@ bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 config.include lxc net scm security services util
 
 hostname=$1
-profile=$2
+profile=
+if [ "$2" != "--test" ];
+then
+    profile=$2
+fi
 
 function __intro() {
     local host=$1
@@ -43,8 +47,9 @@ net.hostNetworking hostip hostiface
 net.enableNAT $hostip $hostiface
 
 security.generatePassword $hostname password
-
 lxc.createContainer $hostname $ip $gw $masknum $password $profile
+security.setContainerPassword $hostname $password
+
 service.enable sshd $hostdir
 net.addToHosts $hostname $ip
 security.addSSHKeys $hostdir

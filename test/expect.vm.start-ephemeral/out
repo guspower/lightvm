@@ -1,0 +1,9 @@
+. @@LXCROOT@@/.config/webserver.start.pre
+lxc-start -d -o @@LXCROOT@@/.logs/webserver.log -l DEBUG -n webserver -f @@LXCROOT@@/.config/webserver.conf
+. @@LXCROOT@@/.config/webserver.start.post
+Started webserver in 0s:
+	config: @@LXCROOT@@/.config/webserver.conf
+	log   : @@LXCROOT@@/.logs/webserver.log
+	start : lxc-start -d -o @@LXCROOT@@/.logs/webserver.log -l DEBUG -n webserver -f @@LXCROOT@@/.config/webserver.conf
+	stop  : lxc-stop -n webserver
+	ssh   : ssh root@webserver

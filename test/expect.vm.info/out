@@ -1,0 +1,6 @@
+Information for somenode:
+	config: @@LXCROOT@@/.config/somenode.conf
+	log   : @@LXCROOT@@/.logs/somenode.log
+	start : lxc-start -d -o @@LXCROOT@@/.logs/somenode.log -l DEBUG -n somenode -f @@LXCROOT@@/.config/somenode.conf
+	stop  : lxc-stop -n somenode
+	ssh   : ssh root@somenode

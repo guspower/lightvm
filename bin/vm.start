@@ -1,0 +1,24 @@
+#!/bin/bash
+
+bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $bindir/vm.config
+config.include lxc net
+
+hostname=$1
+
+function __summary() {
+	local host=$1
+	local conf=$2
+	local log=$3
+
+    local elapsed="$(($(date +%s)-start))"
+
+	echo "Started $hostname in ${elapsed}s:"
+	lxc.containerSummary $host $conf $log
+	net.containerSummary $host
+}
+
+config.init
+config.initHost $hostname
+lxc.startContainer $hostname $hostconf $hostlog
+__summary $hostname $hostconf $hostlog

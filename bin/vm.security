@@ -21,8 +21,14 @@ function security.generatePassword() {
 	local host=$1
 	local __pwvar=$2
 
-	local localpw=`$passwordcmd`
-	$mode util.addOrUpdate $confdir/passwords $host $localpw
+    local localpw=`$passwordcmd`
 
 	eval $__pwvar="'$localpw'"
+}
+
+function security.setContainerPassword() {
+    local host=$1
+    local pw=$2
+
+	$mode util.addOrUpdate $confdir/passwords $host $pw
 }

@@ -39,12 +39,21 @@ function compare() {
 	fi
 }
 
+. ../bin/vm.info somenode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.info
+compare vm.info out
+
 . ../bin/vm.new testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.new
 compare vm.new out
 
 mkdir $vmdir/webserver
 . ../bin/vm.new webnode webserver --test | sed 's/\\/\\/g' > $vmdir/actual.vm.new-ephemeral
 compare vm.new-ephemeral out
+
+. ../bin/vm.start testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.start
+compare vm.start out
+
+. ../bin/vm.start webserver --test | sed 's/\\/\\/g' > $vmdir/actual.vm.start-ephemeral
+compare vm.start-ephemeral out
 
 . ../bin/vm.delete testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.delete
 compare vm.delete out

@@ -1,0 +1,9 @@
+. @@LXCROOT@@/.config/testnode.start.pre
+lxc-start -d -o @@LXCROOT@@/.logs/testnode.log -l DEBUG -n testnode -f @@LXCROOT@@/.config/testnode.conf
+. @@LXCROOT@@/.config/testnode.start.post
+Started testnode in 0s:
+	config: @@LXCROOT@@/.config/testnode.conf
+	log   : @@LXCROOT@@/.logs/testnode.log
+	start : lxc-start -d -o @@LXCROOT@@/.logs/testnode.log -l DEBUG -n testnode -f @@LXCROOT@@/.config/testnode.conf
+	stop  : lxc-stop -n testnode
+	ssh   : ssh root@testnode

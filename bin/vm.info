@@ -1,0 +1,21 @@
+#!/bin/bash
+
+bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $bindir/vm.config
+config.include lxc net
+
+hostname=$1
+
+function __printInfo() {
+	local host=$1
+	local conf=$2
+	local log=$3
+
+	echo "Information for $hostname:"
+	lxc.containerSummary $host $conf $log
+	net.containerSummary $host
+}
+
+config.init
+config.initHost $hostname
+__printInfo $hostname $hostconf $hostlog
