@@ -26,11 +26,11 @@ function lxc.createContainer() {
         $mode mkdir -p $uniondir
         $mode mount -t aufs -o br=$uniondir=rw:$profiledir=ro none $hostdir
 
-        $mode mount -t aufs -o br=$uniondir=rw:$profiledir=ro none $hostdir &>> ${modelog:-$hoststartpre}
-        $mode umount $hostdir &>> ${modelog:-$hoststoppost}
+        $mode echo mount -t aufs -o br=$uniondir=rw:$profiledir=ro none $hostdir >> ${modelog:-$hoststartpre}
+        $mode echo umount $hostdir >> ${modelog:-$hoststoppost}
 
         $mode cp "$confdir/$profile.conf" $hostconf
-        $mode sed -i "s/$host/$profile/g" $hostconf
+        $mode sed -i "s/$profile/$host/g" $hostconf
 
         net.updateContainerConfig $host $hostdir $ip $masknum
     else

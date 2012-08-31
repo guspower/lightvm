@@ -13,10 +13,10 @@ git clone git://github.com/globalcitizen/lxc-gentoo.git @@LXCROOT@@/.gentoo
 mkdir -p @@LXCROOT@@/webnode
 mkdir -p @@LXCROOT@@/.webnode
 mount -t aufs -o br=@@LXCROOT@@/.webnode=rw:@@LXCROOT@@/webserver=ro none @@LXCROOT@@/webnode
-mount -t aufs -o br=@@LXCROOT@@/.webnode=rw:@@LXCROOT@@/webserver=ro none @@LXCROOT@@/webnode
-umount @@LXCROOT@@/webnode
+echo mount -t aufs -o br=@@LXCROOT@@/.webnode=rw:@@LXCROOT@@/webserver=ro none @@LXCROOT@@/webnode
+echo umount @@LXCROOT@@/webnode
 cp @@LXCROOT@@/.config/webserver.conf @@LXCROOT@@/.config/webnode.conf
-sed -i s/webnode/webserver/g @@LXCROOT@@/.config/webnode.conf
+sed -i s/webserver/webnode/g @@LXCROOT@@/.config/webnode.conf
 sed -i s,[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\/[0-9],10.0.0.2/8,g @@LXCROOT@@/webnode/etc/conf.d/net
 echo hostname=webnode
 util.addOrUpdate @@LXCROOT@@/.config/passwords webnode PASSWORD
