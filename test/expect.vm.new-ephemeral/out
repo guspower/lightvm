@@ -13,7 +13,10 @@ git clone git://github.com/globalcitizen/lxc-gentoo.git @@LXCROOT@@/.gentoo
 mkdir -p @@LXCROOT@@/webnode
 mkdir -p @@LXCROOT@@/.webnode
 mount -t aufs -o br=@@LXCROOT@@/.webnode=rw:@@LXCROOT@@/webserver=ro none @@LXCROOT@@/webnode
+echo mount | grep -q @@LXCROOT@@/webnode
+echo -e if [ $? -ne 0 ];\nthen
 echo mount -t aufs -o br=@@LXCROOT@@/.webnode=rw:@@LXCROOT@@/webserver=ro none @@LXCROOT@@/webnode
+echo fi
 echo umount @@LXCROOT@@/webnode
 cp @@LXCROOT@@/.config/webserver.conf @@LXCROOT@@/.config/webnode.conf
 sed -i s/webserver/webnode/g @@LXCROOT@@/.config/webnode.conf
