@@ -1,0 +1,4 @@
+. @@LXCROOT@@/.config/testnode.stop.pre
+lxc-stop -n testnode
+. @@LXCROOT@@/.config/testnode.stop.post
+Stopped testnode in 0s

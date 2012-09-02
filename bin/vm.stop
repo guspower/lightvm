@@ -1,0 +1,18 @@
+#!/bin/bash
+
+bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $bindir/vm.config
+config.include lxc net
+
+hostname=$1
+
+function __summary() {
+    local elapsed="$(($(date +%s)-start))"
+
+	echo "Stopped $hostname in ${elapsed}s"
+}
+
+config.init
+config.initHost $hostname
+lxc.stopContainer $hostname
+__summary

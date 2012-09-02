@@ -62,6 +62,9 @@ mountcmd="echo $vmdir/enode"
 . ../bin/vm.delete enode webserver --test | sed 's/\\/\\/g' > $vmdir/actual.vm.delete-ephemeral
 compare vm.delete-ephemeral out
 
+. ../bin/vm.stop testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.stop
+compare vm.stop out
+
 if [ "$fail" != "" ];
 then
     exit 1
