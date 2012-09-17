@@ -13,6 +13,7 @@
 
 # Stop Start
 * investigate freeze
+* start bridge if required
 
 # Installation
 * separate installation from /var/lxc/.*, use environment var or path
