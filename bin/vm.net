@@ -78,11 +78,33 @@ function net.enableNAT() {
     $mode iptables -t nat -A POSTROUTING -o $hostiface -j SNAT --to-source $hostip
 }
 
+function net.getBridgeConfiguration() {
+    __initalizeNextIpIfRequired
+
+    . $confdir/nextip
+
+	local __gwvar=$1
+	local __maskvar=$2
+
+	local localgw="${first}.0.0.1"
+	local localmask="255.0.0.0"
+
+    eval $__gwvar="'$localgw'"
+    eval $__maskvar="'$localmask'"
+}
+
+function net.setupBridgeWithNAT() {
+    local gw=$1
+    local mask=$2
+
+    net.configureBridge $gw $mask
+    net.enableIpForwarding
+    net.hostNetworking hostip hostiface
+    net.enableNAT $hostip $hostiface
+}
+
 function net.nextIpAddress() {
-    if [ ! -f $confdir/nextip ];
-    then
-        echo -e "first=10\nsecond=0\nthird=0\nfourth=2" > $confdir/nextip
-    fi
+    __initalizeNextIpIfRequired
 
 	. $confdir/nextip
 
@@ -122,4 +144,11 @@ function net.containerSummary() {
     local host=$1
 
     echo -e "\tssh   : ssh root@$host"
+}
+
+function __initalizeNextIpIfRequired() {
+    if [ ! -f $confdir/nextip ];
+    then
+        echo -e "first=10\nsecond=0\nthird=0\nfourth=2" > $confdir/nextip
+    fi
 }

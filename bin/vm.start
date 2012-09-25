@@ -20,5 +20,7 @@ function __summary() {
 
 config.init
 config.initHost $hostname
+net.getBridgeConfiguration gw mask
+net.setupBridgeWithNAT $gw $mask
 lxc.startContainer $hostname $hostconf $hostlog
 __summary $hostname $hostconf $hostlog

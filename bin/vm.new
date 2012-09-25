@@ -41,10 +41,7 @@ config.initHost $hostname
 __intro $hostname
 
 net.nextIpAddress ip gw mask masknum
-net.configureBridge $gw $mask
-net.enableIpForwarding
-net.hostNetworking hostip hostiface
-net.enableNAT $hostip $hostiface
+net.setupBridgeWithNAT $gw $mask
 
 security.generatePassword $hostname password
 lxc.createContainer $hostname $ip $gw $masknum $password $profile
