@@ -52,7 +52,13 @@ function lxc.cloneContainer() {
     $mode cp $confdir/${fromhost}.stop.post $confdir/${tohost}.stop.post
     $mode cp $confdir/${fromhost}.stop.pre $confdir/${tohost}.stop.pre
     $mode sed -i "s/$fromhost/$tohost/g" $confdir/${tohost}.*
-    $mode cp -a $vmdir/$fromhost $vmdir/$tohost
+
+    local fromdir=$vmdir/$fromhost
+    if [ -h $vmdir/$fromhost ];
+    then
+        fromdir=`readlink $fromdir`
+    fi
+    $mode cp -a $fromdir $vmdir/$tohost
 }
 
 function lxc.startContainer() {

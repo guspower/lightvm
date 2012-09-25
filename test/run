@@ -68,6 +68,10 @@ compare vm.stop out
 . ../bin/vm.clone webserver newnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.clone
 compare vm.clone out
 
+ln -sf $vmdir/webserver $vmdir/linkserver
+. ../bin/vm.clone linkserver newnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.clone-softlink
+compare vm.clone-softlink out
+
 if [ "$fail" != "" ];
 then
     exit 1
