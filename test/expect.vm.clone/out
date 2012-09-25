@@ -1,0 +1,32 @@
+CLONING: webserver TO newnode
+echo -e first=10\nsecond=0\nthird=0\nfourth=3
+brctl addbr br0
+brctl setfd br0 0
+brctl sethello br0 0
+brctl stp br0 off
+ifconfig br0 up
+ifconfig br0 10.0.0.1
+ifconfig br0 netmask 255.0.0.0 10.0.0.1
+echo 1
+iptables -t nat -A POSTROUTING -o eth5 -j SNAT --to-source 192.168.1.10
+cp @@LXCROOT@@/.config/webserver.conf @@LXCROOT@@/.config/newnode.conf
+cp @@LXCROOT@@/.config/webserver.start.post @@LXCROOT@@/.config/newnode.start.post
+cp @@LXCROOT@@/.config/webserver.start.pre @@LXCROOT@@/.config/newnode.start.pre
+cp @@LXCROOT@@/.config/webserver.stop.post @@LXCROOT@@/.config/newnode.stop.post
+cp @@LXCROOT@@/.config/webserver.stop.pre @@LXCROOT@@/.config/newnode.stop.pre
+sed -i s/webserver/newnode/g @@LXCROOT@@/.config/newnode.start.post @@LXCROOT@@/.config/newnode.start.pre @@LXCROOT@@/.config/newnode.stop.post @@LXCROOT@@/.config/newnode.stop.pre
+cp -a @@LXCROOT@@/webserver @@LXCROOT@@/newnode
+sed -i /config_eth.*/ d @@LXCROOT@@/newnode/etc/conf.d/net
+sed -i /routes_eth.*/ d @@LXCROOT@@/newnode/etc/conf.d/net
+echo config_eth0="10.0.0.2/8"
+echo routes_eth0="default via 10.0.0.1"
+util.addOrUpdate /etc/hosts newnode 10.0.0.2
+. @@LXCROOT@@/.config/newnode.start.pre
+lxc-start -d -o @@LXCROOT@@/.logs/newnode.log -l DEBUG -n newnode -f @@LXCROOT@@/.config/newnode.conf
+. @@LXCROOT@@/.config/newnode.start.post
+CLONED: newnode(10.0.0.2) in 0s
+ 	config: @@LXCROOT@@/.config/newnode.conf
+ 	log   : @@LXCROOT@@/.logs/newnode.log
+ 	start : lxc-start -d -o @@LXCROOT@@/.logs/newnode.log -l DEBUG -n newnode -f @@LXCROOT@@/.config/newnode.conf
+ 	stop  : lxc-stop -n newnode
+ 	ssh   : ssh root@newnode

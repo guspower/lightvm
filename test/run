@@ -65,6 +65,9 @@ compare vm.delete-ephemeral out
 . ../bin/vm.stop testnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.stop
 compare vm.stop out
 
+. ../bin/vm.clone webserver newnode --test | sed 's/\\/\\/g' > $vmdir/actual.vm.clone
+compare vm.clone out
+
 if [ "$fail" != "" ];
 then
     exit 1

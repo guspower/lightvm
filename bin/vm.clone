@@ -1,0 +1,60 @@
+#!/bin/bash
+
+bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $bindir/vm.config
+config.include gentoo lxc net scm services util
+
+original=$1
+hostname=$2
+
+function __intro() {
+    local orig=$1
+    local host=$2
+
+    local origdir="$vmdir/$orig"
+    if [ ! -d $origdir ];
+    then
+        echo "ERROR: $orig does not exist ($origdir)"
+        exit 1
+    fi
+
+    if [ -d $hostdir ];
+    then
+        echo "ERROR: $host already exists ($hostdir)"
+        exit 1
+    fi
+
+    echo "CLONING: $orig TO $host"
+}
+
+function __summary() {
+	local host=$1
+	local ip=$2
+	local conf=$3
+	local log=$4
+
+	local elapsed="$(($(date +%s)-start))"
+
+	echo "CLONED: $hostname($ip) in ${elapsed}s"
+	lxc.containerSummary $host $conf $log
+	net.containerSummary $host
+}
+
+config.init
+config.initHost $hostname
+__intro $original $hostname
+
+net.nextIpAddress ip gw mask masknum
+net.configureBridge $gw $mask
+net.enableIpForwarding
+net.hostNetworking hostip hostiface
+net.enableNAT $hostip $hostiface
+
+lxc.cloneContainer $original $hostname
+gentoo.updateNetworkConfig $hostname $ip $gw $masknum
+
+net.addToHosts $hostname $ip
+lxc.startContainer $hostname $hostconf $hostlog
+
+__summary $hostname $ip $hostconf $hostlog
+

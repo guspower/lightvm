@@ -42,6 +42,19 @@ function lxc.createContainer() {
     fi
 }
 
+function lxc.cloneContainer() {
+    local fromhost=$1
+    local tohost=$2
+
+    $mode cp $confdir/${fromhost}.conf $confdir/${tohost}.conf
+    $mode cp $confdir/${fromhost}.start.post $confdir/${tohost}.start.post
+    $mode cp $confdir/${fromhost}.start.pre $confdir/${tohost}.start.pre
+    $mode cp $confdir/${fromhost}.stop.post $confdir/${tohost}.stop.post
+    $mode cp $confdir/${fromhost}.stop.pre $confdir/${tohost}.stop.pre
+    $mode sed -i "s/$fromhost/$tohost/g" $confdir/${tohost}.*
+    $mode cp -a $vmdir/$fromhost $vmdir/$tohost
+}
+
 function lxc.startContainer() {
     local host=$1
     local conf=$2
