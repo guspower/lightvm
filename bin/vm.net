@@ -49,16 +49,6 @@ function net.hostNetworking() {
 	eval $__hostifacevar="'$localhostiface'"
 }
 
-function net.updateContainerConfig() {
-    local containername=$1
-    local containerdir=$2
-    local containerip=$3
-    local containermasknum=$4
-
-    $mode sed -i "s,${ipv4pattern}\/[0-9],$containerip/$containermasknum,g" "$containerdir/etc/conf.d/net"
-    $mode echo "hostname=$containername" > ${modelog:-$containerdir/etc/conf.d/hostname}
-}
-
 function net.enableIpForwarding() {
     local ipforward=${ipforward:-"/proc/sys/net/ipv4/ip_forward"}
 

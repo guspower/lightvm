@@ -2,7 +2,7 @@
 
 bindir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $bindir/vm.config
-config.include lxc net scm security services util
+config.include gentoo lxc net scm security services util
 
 hostname=$1
 profile=

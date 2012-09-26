@@ -1,5 +1,7 @@
 #!/bin/bash
 
+lxcHandlesNetwork=${lxcHandlesNetwork:-true}
+
 function gentoo.updateNetworkConfig() {
     local host=$1
     local ip=$2
@@ -7,8 +9,20 @@ function gentoo.updateNetworkConfig() {
     local masknum=$4
 
     local netconfig=$hostdir/etc/conf.d/net
+    local hostsfile=$hostdir/etc/hosts
+    local hostnamefile=$hostdir/etc/conf.d/hostname
+
     $mode sed -i '/config_eth.*/ d' $netconfig
     $mode sed -i '/routes_eth.*/ d' $netconfig
-    $mode echo "config_eth0=\"$ip/$masknum\"" >> ${modelog:-$netconfig}
-    $mode echo "routes_eth0=\"default via $gw\"" >> ${modelog:-$netconfig}
+
+    if [ ! $lxcHandlesNetwork ];
+    then
+        $mode echo "config_eth0=\"$ip/$masknum\"" >> ${modelog:-$netconfig}
+        $mode echo "routes_eth0=\"default via $gw\"" >> ${modelog:-$netconfig}
+    fi
+
+    $mode sed -i '/^127.*/ d' $hostsfile
+    $mode echo "127.0.0.1 $host localhost" >> ${modelog:-$hostsfile}
+
+    $mode echo "hostname=$host" > ${modelog:-$hostnamefile}
 }

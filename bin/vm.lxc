@@ -35,7 +35,8 @@ function lxc.createContainer() {
         $mode cp "$confdir/$profile.conf" $hostconf
         $mode sed -i "s/$profile/$host/g" $hostconf
 
-        net.updateContainerConfig $host $hostdir $ip $masknum
+        lxc.updateContainerNetworkConfig $ip $masknum $gw
+        gentoo.updateNetworkConfig $host $ip $gw $masknum
     else
         $mode $lxccreate create -q -i "$ip/$masknum" -g $gw -n $host -u $host -a amd64 -p $pw &>> ${modelog:-$hostlog}
         $mode mv $vmdir/${host}.conf $hostconf
@@ -59,6 +60,17 @@ function lxc.cloneContainer() {
         fromdir=`readlink $fromdir`
     fi
     $mode cp -a $fromdir $vmdir/$tohost
+
+    lxc.updateContainerNetworkConfig $ip $masknum $gw
+}
+
+function lxc.updateContainerNetworkConfig() {
+    local containerip=$1
+    local containermasknum=$2
+    local containergw=$3
+
+    $mode sed -i "s,(lxc.network.ipv4 =).*,\1 $containerip/$containermasknum,g" $hostconf
+    $mode sed -i "s,(lxc.network.ipv4.gateway =).*,\1 $containergw,g" $hostconf
 }
 
 function lxc.startContainer() {

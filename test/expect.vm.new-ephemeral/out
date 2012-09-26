@@ -20,7 +20,12 @@ echo fi
 echo umount @@LXCROOT@@/webnode
 cp @@LXCROOT@@/.config/webserver.conf @@LXCROOT@@/.config/webnode.conf
 sed -i s/webserver/webnode/g @@LXCROOT@@/.config/webnode.conf
-sed -i s,[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\/[0-9],10.0.0.2/8,g @@LXCROOT@@/webnode/etc/conf.d/net
+sed -i s,(lxc.network.ipv4 =).*,\1 10.0.0.2/8,g @@LXCROOT@@/.config/webnode.conf
+sed -i s,(lxc.network.ipv4.gateway =).*,\1 10.0.0.1,g @@LXCROOT@@/.config/webnode.conf
+sed -i /config_eth.*/ d @@LXCROOT@@/webnode/etc/conf.d/net
+sed -i /routes_eth.*/ d @@LXCROOT@@/webnode/etc/conf.d/net
+sed -i /^127.*/ d @@LXCROOT@@/webnode/etc/hosts
+echo 127.0.0.1 webnode localhost
 echo hostname=webnode
 util.addOrUpdate @@LXCROOT@@/.config/passwords webnode PASSWORD
 chroot @@LXCROOT@@/webnode ln -s /etc/init.d/sshd /etc/runlevels/default/sshd

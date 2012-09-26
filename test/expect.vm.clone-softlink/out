@@ -16,10 +16,13 @@ cp @@LXCROOT@@/.config/linkserver.stop.post @@LXCROOT@@/.config/newnode.stop.pos
 cp @@LXCROOT@@/.config/linkserver.stop.pre @@LXCROOT@@/.config/newnode.stop.pre
 sed -i s/linkserver/newnode/g @@LXCROOT@@/.config/newnode.start.post @@LXCROOT@@/.config/newnode.start.pre @@LXCROOT@@/.config/newnode.stop.post @@LXCROOT@@/.config/newnode.stop.pre
 cp -a @@LXCROOT@@/webserver @@LXCROOT@@/newnode
+sed -i s,(lxc.network.ipv4 =).*,\1 10.0.0.2/8,g @@LXCROOT@@/.config/newnode.conf
+sed -i s,(lxc.network.ipv4.gateway =).*,\1 10.0.0.1,g @@LXCROOT@@/.config/newnode.conf
 sed -i /config_eth.*/ d @@LXCROOT@@/newnode/etc/conf.d/net
 sed -i /routes_eth.*/ d @@LXCROOT@@/newnode/etc/conf.d/net
-echo config_eth0="10.0.0.2/8"
-echo routes_eth0="default via 10.0.0.1"
+sed -i /^127.*/ d @@LXCROOT@@/newnode/etc/hosts
+echo 127.0.0.1 newnode localhost
+echo hostname=newnode
 util.addOrUpdate /etc/hosts newnode 10.0.0.2
 . @@LXCROOT@@/.config/newnode.start.pre
 lxc-start -d -o @@LXCROOT@@/.logs/newnode.log -l DEBUG -n newnode -f @@LXCROOT@@/.config/newnode.conf
