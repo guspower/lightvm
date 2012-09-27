@@ -69,8 +69,21 @@ function lxc.updateContainerNetworkConfig() {
     local containermasknum=$2
     local containergw=$3
 
-    $mode sed -i "s,(lxc.network.ipv4 =).*,\1 $containerip/$containermasknum,g" $hostconf
-    $mode sed -i "s,(lxc.network.ipv4.gateway =).*,\1 $containergw,g" $hostconf
+    egrep -q "^lxc.network.ipv4 =" $hostconf
+    if [ $? -ne 0 ];
+    then
+        $mode echo "lxc.network.ipv4 = $containerip/$containermasknum" >> ${modelog:-$hostconf}
+    else
+        $mode sed -i "s,\(^lxc.network.ipv4 =\).*,\1 $containerip/$containermasknum,g" $hostconf
+    fi
+
+    egrep -q "^lxc.network.ipv4.gateway =" $hostconf
+    if [ $? -ne 0 ];
+    then
+        $mode echo "lxc.network.ipv4.gateway = $containergw" >> ${modelog:-$hostconf}
+    else
+        $mode sed -i "s,\(^lxc.network.ipv4.gateway =\).*,\1 $containergw,g" $hostconf
+    fi
 }
 
 function lxc.startContainer() {

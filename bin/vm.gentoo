@@ -19,6 +19,8 @@ function gentoo.updateNetworkConfig() {
     then
         $mode echo "config_eth0=\"$ip/$masknum\"" >> ${modelog:-$netconfig}
         $mode echo "routes_eth0=\"default via $gw\"" >> ${modelog:-$netconfig}
+    else
+        $mode echo "config_eth0=\"null\"" >> ${modelog:-$netconfig}
     fi
 
     $mode sed -i '/^127.*/ d' $hostsfile
